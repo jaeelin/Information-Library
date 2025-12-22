@@ -1,0 +1,111 @@
+local coreGui = game:GetService("CoreGui")
+
+local InformationLibrary = {}
+InformationLibrary.__index = InformationLibrary
+
+function InformationLibrary.new(config)
+	local self = setmetatable({}, InformationLibrary)
+
+	self.transparency = config.Transparency or 1
+	self.scrollbarEnabled = config.Scrollbar or false
+	self.enabled = config.Enabled or false
+
+	self.gui = nil
+	self.holderFrame = nil
+	self.labelRegistry = {}
+
+	self:createWindow()
+
+	return self
+end
+
+function InformationLibrary:createWindow()
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "Information"
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.Enabled = self.enabled
+	gui.Parent = coreGui
+
+	self.gui = gui
+
+	local holderFrame = Instance.new("ScrollingFrame")
+	holderFrame.Name = "Holder"
+	holderFrame.AnchorPoint = Vector2.new(0, 0.5)
+	holderFrame.Position = UDim2.new(0.01, 0, 0.5, 0)
+	holderFrame.Size = UDim2.new(0.15, 0, 0.5, 0)
+	holderFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	holderFrame.BackgroundTransparency = self.transparency
+	holderFrame.BorderSizePixel = 0
+	holderFrame.ScrollBarThickness = self.scrollbarEnabled and 2 or 0
+	holderFrame.ScrollBarImageColor3 = Color3.fromRGB(15, 15, 15)
+	holderFrame.Parent = gui
+
+	self.holderFrame = holderFrame
+
+	local listLayout = Instance.new("UIListLayout")
+	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	listLayout.Parent = holderFrame
+end
+
+function InformationLibrary:createLabel(config)
+	assert(config.id, "Label requires an id")
+
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Name = config.id
+	textLabel.BackgroundTransparency = 1
+	textLabel.Size = UDim2.new(0.9, 0, 0.075, 0)
+	textLabel.Font = Enum.Font.Code
+	textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	textLabel.TextXAlignment = Enum.TextXAlignment.Left
+	textLabel.TextScaled = true
+	textLabel.TextWrapped = true
+	textLabel.Parent = self.holderFrame
+
+	local sizeConstraint = Instance.new("UITextSizeConstraint")
+	sizeConstraint.MaxTextSize = 20
+	sizeConstraint.Parent = textLabel
+
+	self.labelRegistry[config.id] = {
+		instance = textLabel,
+		value = config.value,
+		prefix = config.text or ""
+	}
+
+	textLabel.Text = (config.text or "") .. tostring(config.value)
+
+	return {
+		setValue = function(_, newValue)
+			local labelData = self.labelRegistry[config.id]
+			if not labelData then return end
+
+			labelData.value = newValue
+			labelData.instance.Text = labelData.prefix .. tostring(newValue)
+		end,
+
+		getValue = function()
+			return self.labelRegistry[config.id].value
+		end
+	}
+end
+
+function InformationLibrary:setEnabled(state)
+	if self.gui then
+		self.gui.Enabled = state
+	end
+end
+
+function InformationLibrary:destroy()
+	if self.gui then
+		self.gui:Destroy()
+		self.gui = nil
+	end
+
+	self.holderFrame = nil
+
+	for id in next, self.labelRegistry do
+		self.labelRegistry[id] = nil
+	end
+end
+
+return InformationLibrary
