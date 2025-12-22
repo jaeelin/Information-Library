@@ -38,6 +38,7 @@ function InformationLibrary:createWindow()
 	holderFrame.BorderSizePixel = 0
 	holderFrame.ScrollBarThickness = self.scrollbarEnabled and 2 or 0
 	holderFrame.ScrollBarImageColor3 = Color3.fromRGB(15, 15, 15)
+	holderFrame.AutomaticCanvasSize = Enum.AutomaticSize.XY
 	holderFrame.Parent = gui
 
 	self.holderFrame = holderFrame
