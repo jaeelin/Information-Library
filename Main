@@ -3,7 +3,7 @@ local coreGui = game:GetService("CoreGui")
 local InformationLibrary = {}
 InformationLibrary.__index = InformationLibrary
 
-InformationLibrary.Version = "1.0.0"
+InformationLibrary.Version = "1.0.1"
 
 function InformationLibrary.new(config)
 	local self = setmetatable({}, InformationLibrary)
