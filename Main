@@ -3,6 +3,8 @@ local coreGui = game:GetService("CoreGui")
 local InformationLibrary = {}
 InformationLibrary.__index = InformationLibrary
 
+InformationLibrary.Version = "1.0.0"
+
 function InformationLibrary.new(config)
 	local self = setmetatable({}, InformationLibrary)
 
@@ -20,15 +22,14 @@ function InformationLibrary.new(config)
 end
 
 function InformationLibrary:createWindow()
-	local gui = Instance.new("ScreenGui")
+	local gui = Instance.new("ScreenGui", coreGui)
 	gui.Name = "Information"
 	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	gui.Enabled = self.enabled
-	gui.Parent = coreGui
 
 	self.gui = gui
 
-	local holderFrame = Instance.new("ScrollingFrame")
+	local holderFrame = Instance.new("ScrollingFrame", gui)
 	holderFrame.Name = "Holder"
 	holderFrame.AnchorPoint = Vector2.new(0, 0.5)
 	holderFrame.Position = UDim2.new(0.01, 0, 0.5, 0)
@@ -39,33 +40,33 @@ function InformationLibrary:createWindow()
 	holderFrame.ScrollBarThickness = self.scrollbarEnabled and 2 or 0
 	holderFrame.ScrollBarImageColor3 = Color3.fromRGB(15, 15, 15)
 	holderFrame.AutomaticCanvasSize = Enum.AutomaticSize.XY
-	holderFrame.Parent = gui
 
 	self.holderFrame = holderFrame
 
-	local listLayout = Instance.new("UIListLayout")
+	local listLayout = Instance.new("UIListLayout", holderFrame)
 	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	listLayout.Parent = holderFrame
 end
 
 function InformationLibrary:createLabel(config)
 	assert(config.id, "Label requires an id")
 
-	local textLabel = Instance.new("TextLabel")
+	local textLabel = Instance.new("TextLabel", self.holderFrame)
 	textLabel.Name = config.id
 	textLabel.BackgroundTransparency = 1
 	textLabel.Size = UDim2.new(0.9, 0, 0.075, 0)
-	textLabel.Font = Enum.Font.Code
+	textLabel.Font = Enum.Font.RobotoMono
 	textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	textLabel.TextXAlignment = Enum.TextXAlignment.Left
 	textLabel.TextScaled = true
 	textLabel.TextWrapped = true
-	textLabel.Parent = self.holderFrame
-
-	local sizeConstraint = Instance.new("UITextSizeConstraint")
+	
+	local uiStroke = Instance.new("UIStroke", textLabel)
+	uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+	uiStroke.Thickness = 1
+	
+	local sizeConstraint = Instance.new("UITextSizeConstraint", textLabel)
 	sizeConstraint.MaxTextSize = 20
-	sizeConstraint.Parent = textLabel
 
 	self.labelRegistry[config.id] = {
 		instance = textLabel,
@@ -108,5 +109,32 @@ function InformationLibrary:destroy()
 		self.labelRegistry[id] = nil
 	end
 end
+
+local window = InformationLibrary.new({
+	Enabled = true
+})
+
+local speedLabel = window:createLabel({
+	id = "speed",
+	text = "Speed: ",
+	value = 16
+})
+
+task.wait(5)
+window:setEnabled(false)
+
+task.wait(5)
+window:setEnabled(true)
+
+speedLabel:setValue(5)
+task.wait(5)
+
+speedLabel:setValue(155)
+task.wait(5)
+
+speedLabel:setValue("hi retard")
+task.wait(5)
+
+window:destroy()
 
 return InformationLibrary
