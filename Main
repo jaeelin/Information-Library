@@ -110,31 +110,4 @@ function InformationLibrary:destroy()
 	end
 end
 
-local window = InformationLibrary.new({
-	Enabled = true
-})
-
-local speedLabel = window:createLabel({
-	id = "speed",
-	text = "Speed: ",
-	value = 16
-})
-
-task.wait(5)
-window:setEnabled(false)
-
-task.wait(5)
-window:setEnabled(true)
-
-speedLabel:setValue(5)
-task.wait(5)
-
-speedLabel:setValue(155)
-task.wait(5)
-
-speedLabel:setValue("hi retard")
-task.wait(5)
-
-window:destroy()
-
 return InformationLibrary
